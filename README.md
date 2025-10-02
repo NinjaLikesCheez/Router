@@ -16,11 +16,11 @@ The architecture consists of:
 
 ### Router Protocol (`Router.swift`)
 
-The `RouterProtocol` is the core of the navigation system. It defines the interface for all navigation routers:
+The `Router` is the core of the navigation system. It defines the interface for all navigation routers:
 
 ```swift
 @MainActor
-public protocol RouterProtocol: AnyObject, Observation.Observable {
+public protocol Router: AnyObject, Observation.Observable {
 	associatedtype Destination: RoutableDestination
 	associatedtype Sheet: RoutableSheet
 	associatedtype Error: RoutableError
@@ -28,9 +28,9 @@ public protocol RouterProtocol: AnyObject, Observation.Observable {
 	var path: [Destination] { get set }
 	var presentedSheet: Sheet? { get set }
 	var presentedError: Error? { get set }
-	var parent: (any RouterProtocol)? { get }
+	var parent: (any Router)? { get }
 
-	init(_ parent: (any RouterProtocol)?)
+	init(_ parent: (any Router)?)
 
 	func push(_ destination: Destination)
 	@discardableResult func pop() -> Destination?
@@ -113,22 +113,22 @@ enum YourFeatureErrors: RoutableError {
 
 ### Step 4: Create the Router
 
-Implement the `RouterProtocol`:
+Implement the `Router`:
 
 ```swift
 import Observation
 import Router
 
 @Observable
-final class YourFeatureRouter: RouterProtocol {
+final class YourFeatureRouter: Router {
 	typealias Destination = YourFeatureDestinations
 	typealias Sheet = YourFeatureSheets
 
 	var path: [YourFeatureDestinations] = []
 	var presentedSheet: YourFeatureSheets? = nil
-	let parent: (any RouterProtocol)?
+	let parent: (any Router)?
 
-	required init(_ parent: (any RouterProtocol)? = nil) {
+	required init(_ parent: (any Router)? = nil) {
 		self.parent = parent
 	}
 }
@@ -345,7 +345,7 @@ When creating views that work with multiple router types, use generics:
 ```swift
 import Router
 
-struct AddServerView<Router: RouterProtocol>: View {
+struct AddServerView<Router: Router>: View {
 	@Environment(Router.self) private var router
 
 	var body: some View {
