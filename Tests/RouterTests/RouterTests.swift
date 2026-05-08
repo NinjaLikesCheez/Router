@@ -38,13 +38,13 @@ enum TestError: RoutableError {
 // MARK: - Test Router Implementation
 
 @MainActor
-final class TestRouter: RouterProtocol {
+final class TestRouter: Router {
 	var path: [TestDestination] = []
 	var presentedSheet: TestSheet?
 	var presentedError: TestError?
-	let parent: (any RouterProtocol)?
+	let parent: (any Router)?
 
-	init(_ parent: (any RouterProtocol)? = nil) {
+	init(_ parent: (any Router)? = nil) {
 		self.parent = parent
 	}
 }
