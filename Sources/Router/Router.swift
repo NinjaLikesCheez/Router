@@ -43,7 +43,7 @@ public protocol Routable: AnyObject, Observation.Observable {
 	associatedtype Error: RoutableError
 
 	/// The current path of destinations.
-	var path: [Destination] { get set }
+	var path: NavigationPath { get set }
 
 	/// The currently presented sheet.
 	var presentedSheet: Sheet? { get set }
@@ -61,7 +61,7 @@ public protocol Routable: AnyObject, Observation.Observable {
 	func push(_ destination: Destination)
 
 	/// Pops the last destination from the navigation stack.
-	@discardableResult func pop() -> Destination?
+	func pop()
 
 	/// Pops to the root destination from the navigation stack.
 	func popToRoot()
@@ -84,16 +84,28 @@ public protocol Routable: AnyObject, Observation.Observable {
 
 extension Routable {
 	public func push(_ destination: Destination) {
-		path.append(destination)
+		if let parent {
+			// TODO: This will break if you have two parents :/ maybe add a check for that and a warning?
+			parent.path.append(destination)
+		} else {
+			path.append(destination)
+		}
 	}
 
-	@discardableResult
-	public func pop() -> Destination? {
-		path.popLast()
+	public func pop() {
+		if let parent {
+			parent.pop()
+		} else {
+			path.removeLast()
+		}
 	}
 
 	public func popToRoot() {
-		path.removeAll()
+		if let parent {
+			parent.popToRoot()
+		} else {
+			path.removeLast(path.count)
+		}
 	}
 
 	public func presentSheet(_ sheet: Sheet) {
